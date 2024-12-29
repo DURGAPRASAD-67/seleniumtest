@@ -1,0 +1,83 @@
+pipeline {
+    agent any
+
+    environment {
+        // Define a variable for the repository URL or other common parameters
+        REPO_URL = 'https://github.com/DURGAPRASAD-67/sampletest.git'
+        SELENIUM_VERSION = '4.8.1' // Update Selenium version accordingly
+        CHROME_DRIVER_PATH = '/usr/local/bin/chromedriver'
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git "${REPO_URL}"
+            }
+        }
+
+        stage('Validate POM File') {
+            steps {
+                script {
+                    // Check if POM file exists
+                    if (!fileExists('pom.xml')) {
+                        error "POM file is missing in the repository. Aborting the pipeline."
+                    } else {
+                        echo "POM file found. Proceeding with the build."
+                    }
+                }
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                echo 'Installing dependencies...'
+                sh 'mvn clean install -DskipTests'
+            }
+        }
+
+        stage('Setup Selenium and WebDriver') {
+            steps {
+                script {
+                    echo "Setting up Selenium WebDriver and ensuring environment is ready for tests..."
+
+                    // Install Selenium dependencies
+                    sh '''
+                        mvn dependency:resolve -Dartifact=org.seleniumhq.selenium:selenium-java:${SELENIUM_VERSION}
+                    '''
+                }
+            }
+        }
+
+        stage('Run Selenium Tests') {
+            steps {
+                echo 'Running Selenium tests...'
+                // Run the tests using Maven with detailed logging
+                sh '''
+                    mvn test -Dwebdriver.chrome.driver=${CHROME_DRIVER_PATH} -Dchrome.options.args="--headless,--no-sandbox,--disable-dev-shm-usage,--disable-gpu,--window-size=1920x1080"
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline execution completed.'
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            script {
+                echo 'Pipeline execution failed!'
+                // Send an email notification on failure
+                mail to: 'manikanta.p@technicalhub.io',
+                     subject: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                     body: "The pipeline has failed. Check the logs at: ${env.BUILD_URL}."
+            }
+        }
+        unstable {
+            echo 'Pipeline executed with unstable results!'
+        }
+    }
+}
