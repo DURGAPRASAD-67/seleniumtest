@@ -1,113 +1,73 @@
-<?xml version="1.0" encoding="UTF-8"?> 
+<?xml version="1.0" encoding="UTF-8"?>
 
- 
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"> 
 
-  <modelVersion>4.0.0</modelVersion> 
-
- 
+  <modelVersion>4.0.0</modelVersion>
 
   <groupId>software</groupId> 
-
   <artifactId>test</artifactId> 
-
   <version>0.0.1-SNAPSHOT</version> 
-
-  <packaging>jar</packaging> 
-
- 
+  <packaging>jar</packaging>
 
   <name>test</name> 
-
-  <url>http://www.example.com</url> 
-
- 
+  <url>http://www.example.com</url>
 
   <properties> 
-
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-
-    <maven.compiler.source>1.8</maven.compiler.source> 
-
-    <maven.compiler.target>1.8</maven.compiler.target> 
-
-  </properties> 
-
- 
+    <maven.compiler.source>11</maven.compiler.source> 
+    <maven.compiler.target>11</maven.compiler.target> 
+  </properties>
 
   <dependencies> 
-
     <dependency> 
-
       <groupId>org.junit.jupiter</groupId> 
-
       <artifactId>junit-jupiter-engine</artifactId> 
-
       <version>5.7.1</version> 
-
       <scope>test</scope> 
-
     </dependency> 
 
     <dependency> 
-
       <groupId>org.junit.jupiter</groupId> 
-
       <artifactId>junit-jupiter-params</artifactId> 
-
       <version>5.7.1</version> 
-
       <scope>test</scope> 
-
     </dependency> 
 
-    <!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager --> 
+    <!-- WebDriverManager -->
+    <dependency> 
+      <groupId>io.github.bonigarcia</groupId> 
+      <artifactId>webdrivermanager</artifactId> 
+      <version>6.0.0</version> 
+    </dependency>
 
-<dependency> 
-
-    <groupId>io.github.bonigarcia</groupId> 
-
-    <artifactId>webdrivermanager</artifactId> 
-
-    <version>6.0.0</version> 
-
-</dependency><!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java --> 
-
-<dependency> 
-
-    <groupId>org.seleniumhq.selenium</groupId> 
-
-    <artifactId>selenium-java</artifactId> 
-
-    <version>4.30.0</version> 
-
-</dependency> 
-
-  </dependencies> 
-
- 
+    <!-- Selenium Java -->
+    <dependency> 
+      <groupId>org.seleniumhq.selenium</groupId> 
+      <artifactId>selenium-java</artifactId> 
+      <version>4.30.0</version> 
+    </dependency> 
+  </dependencies>
 
   <build> 
-
     <plugins> 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>11</source>
+          <target>11</target>
+        </configuration>
+      </plugin>
 
       <plugin> 
-
         <groupId>org.apache.maven.plugins</groupId> 
-
         <artifactId>maven-surefire-plugin</artifactId> 
-
         <version>3.0.0-M5</version> 
-
       </plugin> 
-
     </plugins> 
-
   </build> 
 
-</project> 
-
- 
+</project>
