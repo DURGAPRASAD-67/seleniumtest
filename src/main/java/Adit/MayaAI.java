@@ -5,62 +5,73 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
+import org.testng.Assert;
 
 public class Jenkinscode {
     private WebDriver driver;
-
+    
     public static void main(String[] args) throws InterruptedException {
-        Jenkinscode owlcode = new Jenkinscode();
-        owlcode.setup();
-        owlcode.login();
-        owlcode.closeBrowser();
+        Jenkinscode test = new Jenkinscode();
+        test.setup();
+        test.login();
+        test.verifyDatabase();
+        test.closeBrowser();
     }
 
     public void setup() {
-        // Setup ChromeDriver using WebDriverManager
         WebDriverManager.chromedriver().setup();
-
-        // Set ChromeOptions for headless mode
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless"); // Run in headless mode (no UI)
-        options.addArguments("--no-sandbox"); // Helps in server environments
-        options.addArguments("--disable-dev-shm-usage"); // Prevents crashes in low-memory environments
-        options.addArguments("--remote-allow-origins=*"); // Fixes potential WebDriver errors
-        options.addArguments("--window-size=1920,1080"); // Ensures proper screen size in headless mode
-
-        // Initialize WebDriver with ChromeOptions
+        options.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage", "--window-size=1920,1080");
         driver = new ChromeDriver(options);
-        driver.manage().window().maximize();
     }
 
     public void login() throws InterruptedException {
         driver.get("https://maya.technicalhub.io/");
         Thread.sleep(1000);
 
-        // Click login button
         driver.findElement(By.xpath("//li[@class='header-btn']//a[1]")).click();
         Thread.sleep(1000);
 
-        // Enter login credentials
         driver.findElement(By.name("roll_no")).sendKeys("2000000018");
         driver.findElement(By.name("password")).sendKeys("Thub@123");
         Thread.sleep(3000);
 
-        // Click login button
         driver.findElement(By.xpath("//button[@class='edu-btn btn-medium']")).click();
         Thread.sleep(3000);
 
-        // Confirm login
         driver.findElement(By.xpath("//button[normalize-space(text())='Yes']")).click();
         Thread.sleep(2000);
 
         System.out.println("Successfully logged in");
     }
 
+    public void verifyDatabase() {
+        String uri = "mongodb://localhost:27017"; // Update with actual connection string
+        MongoClient mongoClient = MongoClients.create(uri);
+        MongoDatabase database = mongoClient.getDatabase("mayaDB"); // Replace with actual database name
+        MongoCollection<Document> collection = database.getCollection("users");
+
+        Document user = collection.find(new Document("roll_no", "2000000018")).first();
+        
+        if (user != null) {
+            System.out.println("User exists in MongoDB: " + user.toJson());
+        } else {
+            System.err.println("User not found in MongoDB!");
+        }
+
+        Assert.assertNotNull(user, "User should exist in MongoDB");
+        mongoClient.close();
+    }
+
     public void closeBrowser() throws InterruptedException {
         Thread.sleep(3000);
         if (driver != null) {
-            driver.quit(); // Ensures all browser processes are closed properly
+            driver.quit();
         }
     }
 }
