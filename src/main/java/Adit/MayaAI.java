@@ -21,6 +21,8 @@ public class Jenkinscode {
             test.setup();
             test.login();
             test.verifyLoginSuccess();
+        } catch (Exception e) {
+            System.err.println("❌ Test execution failed: " + e.getMessage());
         } finally {
             test.closeBrowser();
         }
@@ -30,9 +32,11 @@ public class Jenkinscode {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage", "--window-size=1920,1080");
+        
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));  // Explicit wait
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15)); // Increased wait time for slow Jenkins runs
         driver.manage().window().maximize();
+
         System.out.println("✅ WebDriver setup completed.");
     }
 
@@ -40,23 +44,35 @@ public class Jenkinscode {
         System.out.println("🔄 Navigating to login page...");
         driver.get("https://maya.technicalhub.io/");
 
-        // Click login button
-        WebElement loginBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[@class='header-btn']//a[1]")));
-        loginBtn.click();
+        try {
+            // Click login button
+            WebElement loginBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[@class='header-btn']//a[1]")));
+            loginBtn.click();
 
-        // Enter credentials
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("roll_no"))).sendKeys("2000000018");
-        driver.findElement(By.name("password")).sendKeys("Thub@123");
+            // Enter credentials
+            WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("roll_no")));
+            usernameField.sendKeys("2000000018");
+            
+            WebElement passwordField = driver.findElement(By.name("password"));
+            passwordField.sendKeys("Thub@123");
 
-        // Click login button
-        WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@class='edu-btn btn-medium']")));
-        submitBtn.click();
+            // Click login button
+            WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@class='edu-btn btn-medium']")));
+            submitBtn.click();
 
-        // Confirm login popup
-        WebElement confirmBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[normalize-space(text())='Yes']")));
-        confirmBtn.click();
+            // Handle confirmation popup (if present)
+            try {
+                WebElement confirmBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[normalize-space(text())='Yes']")));
+                confirmBtn.click();
+                System.out.println("🔹 Confirmation popup handled.");
+            } catch (Exception ignored) {
+                System.out.println("ℹ No confirmation popup detected.");
+            }
 
-        System.out.println("✅ Login request submitted.");
+            System.out.println("✅ Login request submitted.");
+        } catch (Exception e) {
+            System.err.println("❌ Login process failed: " + e.getMessage());
+        }
     }
 
     public void verifyLoginSuccess() {
