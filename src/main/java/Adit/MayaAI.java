@@ -2,19 +2,28 @@ package maya;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import io.github.bonigarcia.wdm.WebDriverManager;
+
+import java.time.Duration;
 
 public class Jenkinscode {
     private WebDriver driver;
+    private WebDriverWait wait;
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         Jenkinscode test = new Jenkinscode();
-        test.setup();
-        test.login();
-        test.verifyLoginSuccess();
-        test.closeBrowser();
+        try {
+            test.setup();
+            test.login();
+            test.verifyLoginSuccess();
+        } finally {
+            test.closeBrowser();
+        }
     }
 
     public void setup() {
@@ -22,45 +31,47 @@ public class Jenkinscode {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage", "--window-size=1920,1080");
         driver = new ChromeDriver(options);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));  // Explicit wait
         driver.manage().window().maximize();
+        System.out.println("✅ WebDriver setup completed.");
     }
 
-    public void login() throws InterruptedException {
+    public void login() {
+        System.out.println("🔄 Navigating to login page...");
         driver.get("https://maya.technicalhub.io/");
-        Thread.sleep(1000);
 
         // Click login button
-        driver.findElement(By.xpath("//li[@class='header-btn']//a[1]")).click();
-        Thread.sleep(1000);
+        WebElement loginBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[@class='header-btn']//a[1]")));
+        loginBtn.click();
 
         // Enter credentials
-        driver.findElement(By.name("roll_no")).sendKeys("2000000018");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("roll_no"))).sendKeys("2000000018");
         driver.findElement(By.name("password")).sendKeys("Thub@123");
-        Thread.sleep(3000);
 
         // Click login button
-        driver.findElement(By.xpath("//button[@class='edu-btn btn-medium']")).click();
-        Thread.sleep(3000);
+        WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@class='edu-btn btn-medium']")));
+        submitBtn.click();
 
-        // Confirm login
-        driver.findElement(By.xpath("//button[normalize-space(text())='Yes']")).click();
-        Thread.sleep(2000);
+        // Confirm login popup
+        WebElement confirmBtn = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[normalize-space(text())='Yes']")));
+        confirmBtn.click();
+
+        System.out.println("✅ Login request submitted.");
     }
 
     public void verifyLoginSuccess() {
-        boolean loginSuccess = driver.findElements(By.xpath("//h1[contains(text(),'Dashboard')]")).size() > 0;
-
-        if (loginSuccess) {
+        try {
+            WebElement dashboard = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h1[contains(text(),'Dashboard')]")));
             System.out.println("✅ Login successful, Dashboard is visible.");
-        } else {
+        } catch (Exception e) {
             System.err.println("❌ Login failed, Dashboard not found!");
         }
     }
 
-    public void closeBrowser() throws InterruptedException {
-        Thread.sleep(2000);
+    public void closeBrowser() {
         if (driver != null) {
             driver.quit();
+            System.out.println("🛑 Browser closed.");
         }
     }
 }
