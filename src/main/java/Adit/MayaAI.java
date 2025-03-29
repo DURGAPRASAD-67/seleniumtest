@@ -7,7 +7,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import java.time.Duration;
 
-public class MayaAI {
+public class Jenkinsnode {
 
     public boolean checkDatabaseStatus(String rollNo, String password) {
         WebDriver driver = null;
